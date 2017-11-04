@@ -1,0 +1,25 @@
+{
+  "name": "web-worker",
+  "version": "1.0.0",
+  "description": "Simple class working with web worker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eagle7410/web-worker.git"
+  },
+  "keywords": [
+    "worker",
+    "js",
+    "thead",
+    "js"
+  ],
+  "author": "Igor Scherbina",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eagle7410/web-worker/issues"
+  },
+  "homepage": "https://github.com/eagle7410/web-worker#readme"
+}
