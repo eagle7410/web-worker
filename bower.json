@@ -5,13 +5,11 @@
   "authors": [
     "Igor Scherbina"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "keywords": [
     "worker",
-    "js",
-    "thead",
-    "js"
+    "thead"
   ],
   "homepage": "https://github.com/eagle7410/web-worker",
   "ignore": [
