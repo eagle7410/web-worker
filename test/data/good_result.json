@@ -1,0 +1,6 @@
+{
+	"error" : "",
+	"sum"  : "SUM first query 1+2+...+1000 is Ok",
+	"sum-emulator" : "SUM-em 1+2+...+1000 is Ok",
+	"sum-sec"      : "SUM second query 1+2+...+1000 is Ok"
+}

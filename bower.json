@@ -1,0 +1,23 @@
+{
+  "name": "web-worker",
+  "description": "Simple class working with web worker",
+  "main": "index.js",
+  "authors": [
+    "Igor Scherbina"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "worker",
+    "js",
+    "thead",
+    "js"
+  ],
+  "homepage": "https://github.com/eagle7410/web-worker",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

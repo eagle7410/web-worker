@@ -1,6 +1,6 @@
 let count = 0;
 
-let doit = async (db, $setTo) => {
+let doit = async ($setTo, worker, workerEmulate) => {
 
 	let setResult = (selector, mess, isOk, noCount) => {
 
@@ -19,72 +19,82 @@ let doit = async (db, $setTo) => {
 
 
 	try {
-		setResult('.up_insert_update', `UPDATE OR INSERT (update) ${isOK ? 'OK' : 'NO' }`, isOK);
+
+		let correctSum = 500000500000 ;
+
+		let ts = Date.now();
+		let isOK;
+		let res;
+
+		ts = Date.now();
+		res = await workerEmulate.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum-emulator', `SUM-em 1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('Emulator sum time', ts);
+
+		ts = Date.now();
+		res = await worker.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum', `SUM first query 1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('First sum time', ts);
+
+		ts = Date.now();
+		res = await worker.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum-sec', `SUM second query 1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('Second sum time', ts);
+
 	} catch (e) {
+
 		if (e) {
 			setResult('.error', e.message || 'NULL MESSAGE');
 		}
+
 		console.log('error ', e);
 		throw new Error(e);
 	}
 };
 
-const differentDrive = async () => {
-	let db = new BrowserDataBaseClass();
-	let driveConst = BrowserDataBaseClass.driverConst();
+const differentDrive = () => {
 	let $frame = $('#frame');
 	let $setAuto = $('#auto');
-	let $setWebsql = $('#web_sql');
-	let $setInndexedDb = $('#index_db');
+
+	let worker = new window.BrowserWorkerClass();
+	let workerEmulate = new window.BrowserWorkerClass();
+
+	worker.eventAdd('sum', function(start) {
+
+		for (let i = 0; i < 1000001; i++) {
+			start += i;
+		}
+
+		return start;
+	});
+
+	workerEmulate.eventAdd('sum', function(start) {
+
+		for (let i = 0; i < 1000001; i++) {
+			start += i;
+		}
+
+		return start;
+	});
+
+	worker.run();
+	workerEmulate.run(true);
 
 	$setAuto.html($frame.html());
-	$setWebsql.html($frame.html());
-	$setInndexedDb.html($frame.html());
 
-	await doit(db, $setAuto);
-
-	db = new BrowserDataBaseClass({}, driveConst.IndexedDb);
-	await doit(db, $setInndexedDb);
-
-	db = new BrowserDataBaseClass({}, driveConst.WebSQL);
-	await doit(db, $setWebsql);
-
-
+	// init worker ~150
+	setTimeout(() => {
+		doit($setAuto, worker, workerEmulate);
+	}, 150);
 };
 
-;
-window.URL = window.URL || window.webkitURL;
-
-//define a worker
-var worker = new Worker(
-	window.URL.createObjectURL(
-		new window.Blob([
-		"onmessage = function(e) { \
-			var sum = 1;\
-			\
-			for (var i = 1; i<1000000000; ++i) \
-				sum += i;\
-			console.log('sum is', sum);\
-			postMessage(sum)\
-		}"
-		], {type: 'javascript/text'})
-	)
-);
-// var sum = 1;
-//
-// for (var i = 1; i<100000000; ++i)
-// 	sum += i;
-console.log('sum is', sum);
-worker.onmessage = function (oEvent) {
-	console.log("Worker said : " + oEvent.data);
-};
-worker.postMessage('dd');
-
-
-// TODO: clear
-console.log('SEND');
-$(function () {
-	"use strict";
-	differentDrive();
-});
-
+$(function () {differentDrive(); });

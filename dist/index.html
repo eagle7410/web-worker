@@ -48,35 +48,118 @@
 <div class="second_part">
 		<pre>
 			<code>
+let count = 0;
 
-$(function () {
-	"use strict";
+let doit = async ($setTo, worker, workerEmulate) => {
 
-});
+	let setResult = (selector, mess, isOk, noCount) => {
+
+		let $block = $setTo.find(selector);
+
+		$block
+			.text(mess)
+			.addClass(isOk ? 'success' : 'error');
+
+		if (!noCount)
+			$block.before($('<b/>', {
+				text: `TEST #${++count}`,
+				class: 'test_number'
+			}));
+	};
+
+
+	try {
+
+		let correctSum = 500000500000 ;
+
+		let ts = Date.now();
+		let isOK;
+		let res;
+
+		ts = Date.now();
+		res = await workerEmulate.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum-emulator', `SUM-em 1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('Emulator sum time', ts);
+
+		ts = Date.now();
+		res = await worker.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum', `SUM first query 1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('First sum time', ts);
+
+		ts = Date.now();
+		res = await worker.eventSend('sum', 0);
+		ts = Date.now() - ts;
+		isOK = res === correctSum;
+
+		setResult('.sum-sec', `SUM second query  1+2+...+1000 is ${isOK ? 'Ok' : res}`, isOK);
+		console.info('Second sum time', ts);
+
+	} catch (e) {
+
+		if (e) {
+			setResult('.error', e.message || 'NULL MESSAGE');
+		}
+
+		console.log('error ', e);
+		throw new Error(e);
+	}
+};
+
+const differentDrive = () => {
+	let $frame = $('#frame');
+	let $setAuto = $('#auto');
+
+	let worker = new window.BrowserWorkerClass();
+	let workerEmulate = new window.BrowserWorkerClass();
+
+	worker.eventAdd('sum', function(start) {
+
+		for (let i = 0; i < 1000001; i++) {
+			start += i;
+		}
+
+		return start;
+	});
+
+	workerEmulate.eventAdd('sum', function(start) {
+
+		for (let i = 0; i < 1000001; i++) {
+			start += i;
+		}
+
+		return start;
+	});
+
+	worker.run();
+	workerEmulate.run(true);
+
+	$setAuto.html($frame.html());
+
+	// init worker ~150
+	setTimeout(() => {
+		doit($setAuto, worker, workerEmulate);
+	}, 150);
+};
+
+$(function () {differentDrive(); });
 		  </code>
 		</pre>
 </div>
 
 <div class="first_part">
-	<table>
-		<tr>
-			<td>
-				<h2>Auto select</h2>
-				<div id="auto"></div>
-			</td>
-			<td>
-				<h2>WebSqlDrive</h2>
-				<div id="web_sql"></div>
-			</td>
-			<td>
-				<h2>IndexDbDrive</h2>
-				<div id="index_db"></div>
-			</td>
-		</tr>
-	</table>
+	<h2>Worker</h2>
+	<div id="auto"></div>
 </div>
 <template id="frame">
-	<div class="run"></div>
+	<div class="sum"></div>
+	<div class="sum-emulator"></div>
+	<div class="sum-sec"></div>
 	<div class="error"></div>
 </template>
 <script type="text/javascript" src="browser.worker.min.js"></script>
