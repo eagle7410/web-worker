@@ -5,6 +5,7 @@
   "authors": [
     "Igor Scherbina"
   ],
+  "version": "1.0.0",
   "license": "MIT",
   "keywords": [
     "worker",
